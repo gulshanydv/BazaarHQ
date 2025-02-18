@@ -13,16 +13,12 @@ Make sure you have the following installed:
 ## Setup Instructions
 
 ### 1. Clone the Repository
-
 Clone the repository to your local machine:
-
 git clone https://github.com/gulshanydv/BazaarHQ.git
 cd BazaarHQ
 
-
 2. Create a Virtual Environment
 It's recommended to use a virtual environment to keep the project dependencies isolated:
-
 python3 -m venv venv
 Activate the virtual environment:
 
@@ -35,6 +31,7 @@ venv\Scripts\activate
 3. Install Project Dependencies
 Install all the required dependencies from requirements.txt:
 pip install -r requirements.txt
+
 
 4. Set Up the .env File
 Create a .env file in the root directory of the project and add the following environment variables:
@@ -59,19 +56,21 @@ SOCIAL_AUTH_GOOGLE_SECRET=your-google-secret
 Replace the placeholders (your-secret-key, your-db-name, etc.) with your actual credentials and keys.
 Make sure to keep your .env file private and don't commit it to the repository.
 
-
 5. Migrate the Database
 Run the following command to set up the database tables:
 python manage.py migrate
 This will apply any database migrations and set up the required tables for the project.
 
-6. Create a Superuser (Super User have different rights for posting product and managing things simple user have different rights
+6. Create a Superuser
 If you want to access the Django admin panel, you can create an admin user:
 python manage.py createsuperuser
 Follow the prompts to set the username, email, and password for the superuser.
-
 
 7. Run the Development Server
 Start the Django development server:
 python manage.py runserver
 Now, you should be able to access the project in your browser at http://localhost:8000.
+
+User Roles
+Superuser: The superuser will have full access to the Django Admin panel, including the ability to post products and manage everything.
+Regular User: Regular users can have limited permissions, such as only viewing and possibly posting products, depending on how you configure user roles and permissions in the Django Admin panel.
