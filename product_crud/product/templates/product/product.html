@@ -1,0 +1,149 @@
+{% extends "product/base_generic.html" %}
+
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Product Title -->
+    <h2 class="text-center mb-4 product-title">{{ product.name }}</h2>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="row">
+        <!-- Product Image -->
+        <div class="col-md-5 mb-4">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded shadow-lg product-image">
+            {% else %}
+                <p class="text-muted">No image available</p>
+            {% endif %}
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-md-7">
+            <div class="mb-3 product-description">
+                <p><strong>Description:</strong> {{ product.description }}</p>
+            </div>
+            <div class="mb-3">
+                <p class="old-price"><strong>Price:</strong> <span>₹ {{ product.price }}</span></p>
+                <p class=" mb-1"><strong>Stock:</strong> ₹{{ product.stock }}</p>
+            </div>
+            <div class="mb-3">
+                <p><strong>Discount:</strong> 
+                    {% if product.discount %}
+                        <span class="text-danger">{{ product.discount }}%</span>
+                    {% else %}
+                        No discount
+                    {% endif %}
+                </p>
+            </div>
+            <div class="mb-4 new-price">
+                <p><strong>Discounted Price:</strong> 
+                    {% if product.discount %}
+                        <span>₹ {{ product.discounted_price }}</span>
+                    {% else %}
+                        <span>₹ {{ product.price }}</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div>
+                {% if not user.is_superuser %}
+                    <!-- Wishlist Icon -->
+                    <div style="display: flex; justify-content: ">
+                        <!-- Wishlist Button -->
+                        <form action="{% if in_wishlist %}{% url 'remove_wishlist_item' product.slug %}{% else %}{% url 'add_to_wishlist' product.slug %}{% endif %}" method="post" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link" style="background: none; border: none;">
+                                {% if in_wishlist %}
+                                    <i class="fas fa-heart" style="font-size:48px;color: green;"></i>
+                                {% else %}
+                                    <i class="far fa-heart" style="font-size:48px;"></i>
+                                {% endif %}
+                            </button>
+                        </form>
+
+                        <!-- Cart Button -->
+                        <form action="{% if in_cart %}{% url 'remove_cart_item' product.slug %}{% else %}{% url 'add_to_cart' product.slug %}{% endif %}" method="post" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link" style="background: none; border: none;">
+                                {% if in_cart %}
+                                    <i class="fa fa-shopping-cart" style="font-size:48px; color:green"></i>
+                                {% else %}
+                                    <i class="fa fa-shopping-cart" style="font-size:48px;"> </i>
+                                {% endif %}
+                            </button>
+                        </form>
+
+                    </div>
+                    
+                    <a href="#" class="btn btn-success btn-lg btn-custom">Buy Now</a> 
+                    <a href="{% url 'add_review' product.slug %}" class="btn btn-outline-custom btn-lg mx-2">Review Product</a>
+                {% else %}    
+                    <a href="{% url 'delete_product' product.slug%}" class="btn btn-danger btn-lg btn-custom">Delete</a>
+                    <a href="{% url 'product_update' product.slug %}" class="btn btn-warning btn-lg mx-2 btn-custom">Update Product</a>
+                {% endif %}
+                <a href="{% url 'product_listing' %}" class="btn btn-secondary btn-lg mx-2 btn-custom">Back to Listing</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="container mt-5">
+        <h3 class="mb-4 text-center">Customer Reviews</h3>
+        {% if reviews %}
+            <div class="row">
+                {% for review in reviews %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card review-card shadow-sm border-light rounded">
+                            <div class="card-body">
+                                <!-- User and Rating Section -->
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="user-name font-weight-bold">{{ review.user.username }}</span>
+                                    <span class="ml-2">(Rating : {{ review.rating }} / 5)</span>
+                                </div>
+                                <p class="mb-3">
+                                    <span class="font-italic">{{ review.comment }}</span>
+                                </p>
+                                <p class="text-muted small">
+                                    <i class="far fa-calendar-alt"></i> {{ review.created_at|date:"F j, Y" }}
+                                </p>
+                                {% if review.user == current_user %}
+                                    <a href="{% url 'delete_review' product.slug %}" class="btn btn-danger">Delete Review</a>
+                                    <a href="{% url 'update_review' product.slug %}" class="btn btn-secondary">Update Review</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-center text-muted">No reviews available for this product yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<!-- Bootstrap JS (Optional for interactivity like dropdowns, modals, etc.) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+
+<script>
+    // Hide message after 5 seconds (5000 milliseconds)
+    setTimeout(function() {
+        const messages = document.querySelectorAll('.messages');
+        messages.forEach(function(message) {
+            message.classList.remove('show'); // Removes the show class
+            message.classList.add('fade');   // Adds fade class for smooth transition
+        });
+    }, 1000);  // 5000ms = 5 seconds
+</script>
+{% endblock %}

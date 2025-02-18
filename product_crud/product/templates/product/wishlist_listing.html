@@ -1,0 +1,135 @@
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Wishlist</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom styles -->
+    <style>
+        .wishlist-item-card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .wishlist-item-card:hover {
+            transform: scale(1.05);
+        }
+
+        .wishlist-item-card img {
+            max-height: 200px;
+            object-fit: cover;
+        }
+
+        .wishlist-item-card .card-body {
+            padding: 15px;
+        }
+
+        .wishlist-item-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .wishlist-item-price {
+            font-size: 1.1rem;
+            color: #007bff;
+        }
+
+        .wishlist-item-actions .btn {
+            width: 100%;
+        }
+
+        .empty-wishlist-message {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 50px;
+        }
+
+        .back-button {
+            margin-top: 30px;
+        }
+
+        .card-footer {
+            background-color: #f8f9fa;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Your Wishlist</h2>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% if wishlist_items %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for item in wishlist_items %}
+            <div class="col">
+                <div class="card wishlist-item-card">
+                    {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" class="card-img-top" alt="{{ item.product.name }}">
+                    {% endif %}
+
+                    <div class="card-body">
+                        <h5 class="wishlist-item-name">{{ item.product.name }}</h5>
+                        <p class="wishlist-item-name">{{ item.product.description }}</p>
+                        <p class="wishlist-item-price">₹{{ item.product.discounted_price }}</p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{% url 'remove_from_wishlist' item.product.slug %}" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#removeItemModal{{ item.product.slug }}">Remove</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info empty-wishlist-message" role="alert">
+            Your Wishlist is empty! Start adding your favorite products.
+        </div>
+    {% endif %}
+</div>
+
+<div class="container mt-4">
+    <a href="{% url 'product_listing' %}" class="btn btn-secondary w-100 back-button">Back </a>
+</div>
+
+<!-- Modal for Remove Confirmation -->
+{% for item in wishlist_items %}
+<div class="modal fade" id="removeItemModal{{ item.product.slug }}" tabindex="-1" aria-labelledby="removeItemModalLabel{{ item.product.slug }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="removeItemModalLabel{{ item.product.slug }}">Confirm Removal</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to remove <strong>{{ item.product.name }}</strong> from your wishlist?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <a href="{% url 'remove_from_wishlist' item.product.slug %}" class="btn btn-danger">Remove</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Bootstrap JS (optional, for interactive components) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'product/base_generic.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Update Product: {{ product.name }}</h2>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}  <!-- Render the form fields -->
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+
+    <div class="mt-4">
+        <a href="{% url 'product_detail' product.slug %}" class="btn btn-secondary">Back to Product Details</a>
+    </div>
+</div>
+{% endblock %}

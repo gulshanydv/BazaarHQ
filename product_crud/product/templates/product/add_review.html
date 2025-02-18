@@ -1,0 +1,57 @@
+{% extends 'product/base_generic.html' %}
+
+{% block content %}
+    <div class="container my-5 card-body">
+
+        <h2 class="my-4 text-center">Product Reviews</h2>
+
+        {% if messages %}
+        <div class="messages mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if product.reviews.exists %}
+            {% for review in product.reviews.all %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <strong>{{ review.user.username }}</strong>
+                            <small class="text-muted">({{ review.created_at|date:"F d, Y" }})</small>
+                        </h5>
+                        <p class="card-text">Rating: 
+                            <span class="badge bg-warning text-dark">{{ review.rating }}/5</span>
+                        </p>
+                        <p class="card-text">{{ review.comment }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                No reviews yet. Be the first to review!
+            </div>
+        {% endif %}
+
+        {% if user.is_authenticated and not user.is_superuser %}
+        <h3 class="my-4">Write a Review</h3>
+        <form method="post" action="{% url 'add_review' product.slug %}" class="card p-4 shadow-sm">
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.as_p }}
+            </div>
+            <button type="submit" class="btn btn-primary ">Submit Review</button> <br>  
+            <a href="{% url 'product_listing' %}" class="btn btn-danger ">Back</a>
+
+        </form>
+        
+        {% else %}
+            <div class="alert alert-warning" role="alert">
+                Please log in to write a review.
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

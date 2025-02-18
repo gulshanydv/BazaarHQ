@@ -1,0 +1,37 @@
+{% extends 'product/base_generic.html' %}
+
+{% block content %}
+<h2>Add a New Address</h2>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Save Address</button>
+</form>
+
+<script>
+    document.getElementById('id_pincode').addEventListener('input', function() {
+        var pincode = this.value;
+
+        if (pincode.length === 6) {
+            fetch(`https://api.postalpincode.in/pincode/${pincode}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data[0].Status === "Success") {
+                        var city = data[0].PostOffice[0].Division;
+                        var state = data[0].PostOffice[0].State;
+
+                        document.getElementById('id_city').value = city;
+                        document.getElementById('id_state').value = state;
+                    } else {
+                        alert('Invalid Pincode. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to fetch data. Please try again later.');
+                });
+        }
+    });
+</script>
+
+{% endblock %}

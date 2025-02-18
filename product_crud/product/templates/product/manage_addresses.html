@@ -1,0 +1,61 @@
+{% extends 'product/base_generic.html' %}
+
+{% block content %}
+<h2 class="mb-4 text-center">Your Saved Addresses</h2>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% if addresses %}
+        {% for address in addresses %}
+        <div class="col">
+            <div class="card shadow-sm border-light h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ address.address.full_name }} - 
+                        <small class="text-muted">{{ address.address.get_address_type_display }}</small>
+                    </h5>
+                    <p class="card-text">
+                        <strong>Address:</strong> {{ address.address.house_no_or_building_name }},
+                        {{ address.address.area_or_colony }}, {{ address.address.city }},
+                        {{ address.address.state }} - {{ address.address.pincode }}
+                    </p>
+                    <p><strong>Phone:</strong> {{ address.address.phone_number }}</p>
+
+                    {% if address.address.is_default %}
+                        <span class="badge bg-success">Default</span>
+                    {% else %}
+                        {% with address_id=address.id %}
+                            {% with encrypted_address=address_id|urlencode %}
+                                <a href="{% url 'set_default_address' encrypted_address=address.encrypted_address %}" 
+                                   class="btn btn-outline-primary btn-sm">Set as Default</a>
+                            {% endwith %}
+                        {% endwith %}
+                    {% endif %}
+
+                    <div class="mt-3 d-flex justify-content-between">
+                        {% with address_id=address.id %}
+                            {% with encrypted_address=address_id|urlencode %}
+                                <a href="{% url 'edit_address' encrypted_address=address.encrypted_address %}" 
+                                   class="btn btn-warning btn-sm">Edit</a>
+                            {% endwith %}
+                        {% endwith %}
+
+                        {% with address_id=address.id %}
+                            {% with encrypted_address=address_id|urlencode %}
+                                <a href="{% url 'delete_address' encrypted_address=address.encrypted_address %}" 
+                                   class="btn btn-danger btn-sm">Delete</a>
+                            {% endwith %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No addresses available.</p>
+    {% endif %}
+</div>
+
+<div class="text-center mt-4">
+    <a href="{% url 'add_address' %}" class="btn btn-success btn-lg">Add a New Address</a>
+</div>
+
+{% endblock %}

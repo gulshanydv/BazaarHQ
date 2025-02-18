@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Background image styling */
+        body {
+            background: url('{% static "product/top-view-black-friday-arrangement-black-background-with-copy-space.jpg" %}') no-repeat center center;
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Card styling to ensure readability */
+        .card {
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Style for error messages */
+        .errorlist {
+            color: red;
+        }
+
+        /* Initially hide OTP, password, and confirm password fields */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="container d-flex justify-content-center align-items-center">
+        <div class="card p-4 shadow" style="width: 100%; max-width: 400px;">
+            <h2 class="text-center mb-4">Sign Up</h2>
+            <form method="POST" id="signupForm">
+                {% csrf_token %}
+                
+                <!-- Always visible fields: username, first name, last name, email -->
+                <div class="mb-3">
+                    {{ form.username }}
+                </div>
+                <div class="mb-3">
+                    {{ form.first_name }}
+                </div>
+                <div class="mb-3">
+                    {{ form.last_name }}
+                </div>
+                <div class="mb-3">
+                    {{ form.email }}
+                </div>
+
+                <!-- OTP Button -->
+                <div class="mb-3">
+                    <a type="button" class="btn btn-secondary" id="sendOtpButton">Verify Email</a>
+                </div>
+                
+                <!-- Hidden fields: OTP, password, confirm password -->
+                <div id="otpPasswordFields" class="hidden">
+                    <div class="mb-3">
+                        {{ form.otp }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.password1 }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.password2 }}
+                    </div>
+                </div>
+                
+                <!-- Submit button -->
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary" id="submitButton" disabled>Sign Up</button>
+                </div>
+            </form>
+            <div class="text-center mt-3">
+                <p>Already have an account? <a href="{% url 'login' %}" class="text-decoration-none">Login here</a>.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS (optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.getElementById('sendOtpButton').addEventListener('click', function () {
+            const email = document.querySelector('[name="email"]').value;
+        
+            // Ensure the email field is filled before making the request
+            if (!email) {
+                alert('Please enter your email address first!');
+                return;
+            }
+        
+            // Check if the email is already registered
+            fetch("{% url 'check_email_exists' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: new URLSearchParams({
+                    email: email
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.email_exists) {
+                    alert('This email is already registered.');
+                } else {
+                    fetch("{% url 'send_otp' %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: new URLSearchParams({
+                            email: email
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message); 
+                            document.getElementById('otpPasswordFields').classList.remove('hidden');
+                            document.getElementById('submitButton').removeAttribute('disabled');
+                        } else {
+                            alert(data.message); 
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while sending the OTP. Please try again.');
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while checking the email. Please try again.');
+            });
+        });
+    </script>
+
+</body>
+</html>

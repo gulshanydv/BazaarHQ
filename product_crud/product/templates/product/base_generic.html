@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Product Listing{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    {% block styles %}
+    <style>
+        /* Initially hide the message container */
+        .messages {
+            display: none;
+            opacity: 0; /* Make it invisible */
+            transition: opacity 1s ease-out; /* Smooth fade-out transition */
+        }
+
+        /* Show the message container */
+        .messages.show {
+            display: block; /* Make it visible */
+            opacity: 1; /* Make it fully opaque */
+        }
+
+        /* Fade out the message */
+        .messages.fade {
+            opacity: 0; /* Fade it out */
+            transition: opacity 1s ease-out; /* Smooth transition */
+        }
+
+        .old-price {
+            text-decoration: line-through;
+            color: red;
+        }
+        .new-price {
+            color: green;
+            font-size: 1rem;
+        }
+        .product-image {
+            max-height: 500px;
+            object-fit: contain;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .product-description {
+            font-size: 1.2rem;
+            color: #555;
+            margin-top: 15px;
+        }
+        .product-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .btn-custom {
+            font-size: 1.1rem;
+            padding: 12px 25px;
+            border-radius: 30px;
+            margin-top: 10px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            background-color: #007bff;
+        }
+        .review-card {
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .review-card h5 {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        .review-card p {
+            font-size: 1rem;
+            margin: 10px 0;
+        }
+        .rating-stars {
+            color: #ffcc00;
+        }
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .review-header .user-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .review-header .rating {
+            font-size: 1.2rem;
+        }
+        .wishlist-icon {
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        .wishlist-icon.added {
+            color: green;
+        }
+        .btn-outline-custom {
+            border: 2px solid #28a745;
+            color: #28a745;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .btn-outline-custom:hover {
+            background-color: #28a745;
+            color: white;
+        }
+        .fixed-container {
+            width: 100%;           /* 100% width of the viewport or parent */
+            max-width: 1200px;     /* Optional: If you want a max width */
+            min-height: 600px;     /* Ensure a fixed minimum height */
+            height: 87vh;         /* Alternatively, you can set it to 100vh for full screen height */
+            margin: 0 auto;        /* Center the container horizontally */
+            padding: 20px;         /* Add padding for spacing */
+            box-sizing: border-box;
+            background-color: #fff; /* Optional: background color */
+        }
+        /* Navbar Style */
+        .navbar {
+            background-color: #343a40; /* Dark background for the navbar */
+            padding: 1rem 2rem;
+        }
+        .navbar-brand {
+            color: #fff !important;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        .navbar-nav .nav-link {
+            color: #fff !important;
+            margin-right: 15px;
+            font-size: 1rem;
+            padding: 10px 15px;
+        }
+        .navbar-nav .nav-link:hover {
+            background-color: #495057;
+            border-radius: 4px;
+        }
+        .navbar-nav .btn {
+            border-radius: 30px;
+        }
+        .navbar-nav .dropdown-menu {
+            background-color: #495057;
+            border-radius: 8px;
+        }
+        .navbar-nav .dropdown-item {
+            color: #fff;
+        }
+        .navbar-nav .dropdown-item:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        /* Cart and Wishlist Badge */
+        .review-count-circle {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background-color: #ff5733; /* Red background for the badge */
+            color: white;
+            text-align: center;
+            line-height: 22px; /* Center text vertically */
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        /* Buttons */
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            color: black;
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    {% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white" href="#">Product Showcase</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        {% if user.is_superuser %}
+                            <li><a class="btn btn-secondary mx-2" href="{% url 'add_product' %}">Add Product</a></li>
+                            <li><a class="btn btn-success mx-2" href="{% url 'user_listing' %}">Users List</a></li>
+                        {% else %}
+                            <li><a class="btn btn-warning mx-2" href="{% url 'cart_view' %}">Cart <span class="review-count-circle">{{ cart_count }}</span></a></li>
+                        {% endif %}
+                        <!-- Account dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Account
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'update_profile' %}">Edit Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'addresses' %}">Saved Addresses</a></li>
+                                <li><a class="dropdown-item" href="{% url 'wishlist_list' %}">Wishlist  <span class="review-count-circle">{{ wishlist_count }}</span></a></li>
+                                <li><a class="dropdown-item" href="{% url 'reviews_list' %}">Reviews  <span class="review-count-circle">{{ review_count }}</span></a></li>
+                                <li><a class="dropdown-item" href="{% url 'change_password' %}">Change Password</a></li>
+                                <li>
+                                    <form action="{% url 'logout' %}" method="POST" class="dropdown-item">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-link text-white">Logout</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                        <!-- Logout -->
+                        <li>
+                            <form action="{% url 'logout' %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger mx-2">Logout</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li><a class="btn btn-primary mx-2" href="{% url 'login' %}">Login</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="container-fluid"  >
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Select the message container
+            const messagesContainer = document.querySelector('.messages');
+            
+            if (messagesContainer) {
+                // Initially add the 'show' class to display messages
+                messagesContainer.classList.add('show'); 
+                
+                // Optional: hide the message container after 2 seconds
+                setTimeout(function() {
+                    messagesContainer.classList.remove('show'); // Hide the message
+                    messagesContainer.classList.add('fade'); // Add 'fade' class for smooth transition
+                }, 4000); // 2000ms = 2 seconds
+            }
+        });
+    </script>
+    
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+
+</body>
+</html>

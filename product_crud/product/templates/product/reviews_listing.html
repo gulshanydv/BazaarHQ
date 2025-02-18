@@ -1,0 +1,25 @@
+{% extends 'product/base_generic.html' %}
+
+{% block content %}
+<h2>Reviews</h2>
+
+{% if reviews %}
+    <div class="list-group">
+        {% for review in reviews %}
+            <div class="list-group-item">
+                <h5 class="list-group-item-heading">{{ review.user }} - {{ review.product }}</h5>
+                <p><strong>Review:</strong> {{ review.comment }}</p>
+                <p><strong>Rating:</strong> {{ review.rating }}</p>
+                <p><strong>Date:</strong> {{ review.created_at }}</p>
+            </div>
+        {% endfor %}
+
+<div class="container mt-4">
+    <a href="{% url 'product_listing' %}" class="btn btn-secondary w-100 back-button">Back </a>
+</div>
+    </div>
+{% else %}
+    <p>No reviews available.</p>
+{% endif %}
+
+{% endblock %}
